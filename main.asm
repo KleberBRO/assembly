@@ -1,10 +1,7 @@
+.include "data.asm"
+
 .text
 .globl main
-.include "data.asm"
-.include "utils.asm"
-.include "handlers.asm"
-.include "cmd_conta_cadastrar.asm"
-.include "cmd_data_hora.asm"
 
 main:
     # Carregar dados salvos (se existirem)
@@ -23,3 +20,8 @@ main_loop:
     # Nunca chega aqui normalmente; exit placeholder
     li $v0, 10
     syscall
+
+.include "utils.asm"
+.include "handlers.asm"
+.include "cmd_conta_cadastrar.asm"
+.include "cmd_data_hora.asm"
