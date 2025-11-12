@@ -7,9 +7,9 @@ cmd_conta_cadastrar:
     sw   $s0, 4($sp)
     sw   $s1, 8($sp)
 
-    # source start = input_buffer + len("conta_cadastrar-") == 17
+    # source start = input_buffer + len("conta_cadastrar-") == 16
     la $t0, input_buffer
-    addi $t0, $t0, 17
+    addi $t0, $t0, 16
 
     # copiar CPF até '-'
     move $a0, $t0

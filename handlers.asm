@@ -31,7 +31,7 @@ parse_command:
     # verificar prefixo "conta_cadastrar-"
     la $a0, input_buffer
     la $a1, cmd_conta_cadastrar_label
-    li $a2, 17
+    li $a2, 16
     jal strncmp
     beq $v0, $zero, call_cmd_conta_cadastrar
 
