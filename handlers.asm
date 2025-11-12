@@ -3,62 +3,102 @@
 .globl cmd_conta_cadastrar, cmd_data_hora, save_data, load_data
 
 parse_command:
+    # salvar return address
+    addi $sp, $sp, -4
+    sw   $ra, 0($sp)
+
     # verifica "salvar"
     la $a0, input_buffer
     la $a1, cmd_salvar_label
     li $a2, 6
     jal strncmp
-    beq $v0, $zero, cmd_salvar
+    beq $v0, $zero, call_cmd_salvar
 
     # verificar "recarregar"
     la $a0, input_buffer
     la $a1, cmd_recarregar_label
     li $a2, 9
     jal strncmp
-    beq $v0, $zero, cmd_recarregar
+    beq $v0, $zero, call_cmd_recarregar
 
     # verificar "formatar"
     la $a0, input_buffer
     la $a1, cmd_formatar_label
     li $a2, 8
     jal strncmp
-    beq $v0, $zero, cmd_formatar
+    beq $v0, $zero, call_cmd_formatar
 
     # verificar prefixo "conta_cadastrar-"
     la $a0, input_buffer
     la $a1, cmd_conta_cadastrar_label
     li $a2, 17
     jal strncmp
-    beq $v0, $zero, cmd_conta_cadastrar
+    beq $v0, $zero, call_cmd_conta_cadastrar
 
     # verificar prefixo "data_hora-"
     la $a0, input_buffer
     la $a1, cmd_data_hora_label
     li $a2, 10
     jal strncmp
-    beq $v0, $zero, cmd_data_hora
+    beq $v0, $zero, call_cmd_data_hora
 
     # comando inválido
     la $a0, cmd_invalido
     li $v0, 4
     syscall
-    jr $ra
+    j parse_restore_and_return
 
+call_cmd_salvar:
+    jal cmd_salvar
+    j parse_restore_and_return
+
+call_cmd_recarregar:
+    jal cmd_recarregar
+    j parse_restore_and_return
+
+call_cmd_formatar:
+    jal cmd_formatar
+    j parse_restore_and_return
+
+call_cmd_conta_cadastrar:
+    jal cmd_conta_cadastrar
+    j parse_restore_and_return
+
+call_cmd_data_hora:
+    jal cmd_data_hora
+    j parse_restore_and_return
+
+parse_restore_and_return:
+    lw   $ra, 0($sp)
+    addi $sp, $sp, 4
+    jr   $ra
+
+# Handlers — preservam $ra quando chamam outras rotinas
 cmd_salvar:
-    jal save_data
-    la $a0, msg_salvo
-    li $v0, 4
+    addi $sp, $sp, -4
+    sw   $ra, 0($sp)
+    jal  save_data
+    la   $a0, msg_salvo
+    li   $v0, 4
     syscall
-    jr $ra
+    lw   $ra, 0($sp)
+    addi $sp, $sp, 4
+    jr   $ra
 
 cmd_recarregar:
-    jal load_data
-    la $a0, msg_recarregado
-    li $v0, 4
+    addi $sp, $sp, -4
+    sw   $ra, 0($sp)
+    jal  load_data
+    la   $a0, msg_recarregado
+    li   $v0, 4
     syscall
-    jr $ra
+    lw   $ra, 0($sp)
+    addi $sp, $sp, 4
+    jr   $ra
 
 cmd_formatar:
+    addi $sp, $sp, -4
+    sw   $ra, 0($sp)
     # zera o contador e limpa a área de clientes
     la $t0, num_clientes
     sw $zero, 0($t0)
@@ -74,7 +114,9 @@ fc_done:
     la $a0, msg_formatado
     li $v0, 4
     syscall
-    jr $ra
+    lw   $ra, 0($sp)
+    addi $sp, $sp, 4
+    jr   $ra
 
 # Stubs para salvar/recarregar (implementação futura usando syscalls de arquivo)
 save_data:

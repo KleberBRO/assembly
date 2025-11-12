@@ -1,6 +1,12 @@
 .text
 
 cmd_conta_cadastrar:
+    # prólogo: salvar $ra e $s registos (usa 12 bytes)
+    addi $sp, $sp, -12
+    sw   $ra, 0($sp)
+    sw   $s0, 4($sp)
+    sw   $s1, 8($sp)
+
     # source start = input_buffer + len("conta_cadastrar-") == 17
     la $t0, input_buffer
     addi $t0, $t0, 17
@@ -183,28 +189,36 @@ dv_store:
     la $a0, newline
     li $v0, 4
     syscall
-    jr $ra
+    j cc_return
 
 cpf_exists:
     la $a0, msg_cpf_exists
     li $v0, 4
     syscall
-    jr $ra
+    j cc_return
 
 acc_in_use:
     la $a0, msg_acc_in_use
     li $v0, 4
     syscall
-    jr $ra
+    j cc_return
 
 err_invalid_params:
     la $a0, msg_invalid_params
     li $v0, 4
     syscall
-    jr $ra
+    j cc_return
 
 db_full:
     la $a0, msg_db_full
     li $v0, 4
     syscall
-    jr $ra
+    j cc_return
+
+# epílogo: restaurar $ra e $s regs e retornar
+cc_return:
+    lw   $ra, 0($sp)
+    lw   $s0, 4($sp)
+    lw   $s1, 8($sp)
+    addi $sp, $sp, 12
+    jr   $ra
